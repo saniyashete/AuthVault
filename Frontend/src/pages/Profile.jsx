@@ -61,9 +61,9 @@ function Profile() {
   return (
     <>
       <AuthLayout>
-        <Logo></Logo>
         <Card>
           <div className="text-center">
+            <Logo></Logo>
             <div className="relative mx-auto w-24 h-24">
               {preview || user?.profileImage ? (
                 <img
