@@ -18,6 +18,11 @@ const sendEmail = async (email, resetURL) => {
 
   console.log("Transporter created");
 
+  // 👇 ADD THESE TWO LINES HERE
+  console.log("Verifying SMTP...");
+  await transporter.verify();
+  console.log("SMTP verified");
+
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,

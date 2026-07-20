@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import User from "../models/user.js";
-import sendEmail from "../utils/sendEmail.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -109,6 +108,37 @@ export const loginUser = async (req, res) => {
   }
 };
 
+// export const forgotPassword = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//       });
+//     }
+
+//     const resetToken = crypto.randomBytes(20).toString("hex");
+
+//     user.resetPasswordToken = resetToken;
+//     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+//     await user.save();
+
+//     const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+//     await sendEmail(user.email, resetURL);
+
+//     res.status(200).json({
+//       message: "Reset link sent",
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: error.message,
+//     });
+//   }
+// };
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -124,23 +154,29 @@ export const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
 
     await user.save();
 
     const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    await sendEmail(user.email, resetURL);
 
-    res.status(200).json({
-      message: "Reset link sent",
+    console.log("Reset URL:", resetURL);
+
+    // TEMPORARILY COMMENT THIS OUT
+    // await sendEmail(user.email, resetURL);
+
+    return res.status(200).json({
+      message: "Reset link generated successfully",
+      resetURL,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
-
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
