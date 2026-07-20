@@ -1,29 +1,39 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
-const sendEmail = async (email, resetURL) => {
-  const { data, error } = await resend.emails.send({
-    from: "AuthVault <onboarding@resend.dev>",
-    to: email,
-    subject: "Reset Password",
-    html: `
-      <h2>AuthVault Password Reset</h2>
-
-      <p>Click the button below to reset your password.</p>
-
-      <a href="${resetURL}">
-        Reset Password
-      </a>
-    `,
-  });
-
-  console.log("Resend Data:", data);
-  console.log("Resend Error:", error);
-
+transporter.verify((error, success) => {
   if (error) {
-    throw new Error(error.message);
+    console.log("SMTP CONNECTION FAILED:");
+    console.log(error.message);
+  } else {
+    console.log("SMTP CONNECTION SUCCESS");
+  }
+});
+
+export const sendEmail = async ({ to, subject, html }) => {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html,
+    });
+
+    console.log("Email sent:", info.messageId);
+
+    return info;
+  } catch (error) {
+    console.error("Email sending failed:", error.message);
+
+    throw error;
   }
 };
-
-export default sendEmail;
