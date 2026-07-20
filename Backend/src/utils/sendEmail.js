@@ -4,14 +4,17 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (email, resetURL) => {
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "AuthVault <onboarding@resend.dev>",
     to: email,
     subject: "Reset Password",
     html: `
-      <h3>Password Reset</h3>
+      <h2>AuthVault Password Reset</h2>
+
       <p>Click the button below to reset your password.</p>
 
-      <a href="${resetURL}">Reset Password</a>
+      <a href="${resetURL}">
+        Reset Password
+      </a>
     `,
   });
 
